@@ -4,6 +4,9 @@
 //    runat 12:31:22 my prog -a -b
 //
 // I wrote it to allow me to analyze process concurrency issues.
+//
+// Copyright (c) 2016 by Joe Linoff
+// Licence: MIT Open Source
 package main
 
 import (
@@ -243,27 +246,33 @@ USAGE
 DESCRIPTION
     Run a command at the specific time with a resolution of 1 second.
 
-    It can be used to do concurrency tests by setting up runs in different
-    windows to start at almost the same time (within a millisecond). That means
-    if you two commands with the same start in separate windows, they will
-    start within 1ms of each other. Usually it will be much closer than a
-    millisecond, probably within tens of microseconds.
+    This tool can be used for analyzing process race conditions because it
+    allows you to start multiple processes at almost the same time (usually
+    to within microseconds of one another) in a convenient way (without having
+    to specify a specific time).
 
     There are two input formats:
 
-      HH:MM:SS - Run the command at this specific time.
+      HH:MM:SS  Run the command at this specific time.
 
-      <sec>    - Run command at second offset from the current minute it
-                 must be later than the current time.
+      MARK      Run command at the specific second mark from the current
+                minute. If that time has passed, it will rollover to the mark
+                in the next minute
 
-                 For example, if the current time is 11:23:14 then
-                 "runat.sh 30 pwd" would run the command at 11:23:30.
+    The mark format is the most interesting because you don't have to think
+    about the specific time. If you specify 30, it will run the command at the
+    30 second mark, if you specify 15 it will run at the 15 second mark. If the
+    mark has already passed it will start it in the next minute. Some examples
+    will make that clear.
 
-                 If <sec> is greater than the current sec, it rolls
-                 over to the next minute.
+      Example 1, if the current time is 14:22:17 and you specify 30,
+                 it will start at 14:22:30.
 
-                 If <sec> is greater than 60, it adds the appropriate number
-                 of minutes.
+      Example 2, if the current time is 14:22:17 and you specify 10, it will
+                 start at 14:23:30.
+
+    The command is any command. Everything after the time specification is part
+    of the command.
 
     Here is an example usage using three windows that will run some commands at
     the 30 second mark (about 28 seconds after they were started).
@@ -303,9 +312,9 @@ DESCRIPTION
 OPTIONS
     All of the options must appear before the time specification.
 
-    -h, --help         Print this help message and exit.
+    -h, --help         Print this help message and exits.
     -v, --verbose      Increase the level of verbosity.
-    -V, --version      Print the program version and exit.
+    -V, --version      Print the program version and exits.
 
 EXIT STATUS
     Returns the exit status of the command unless the command line is not
