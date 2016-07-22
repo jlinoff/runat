@@ -121,6 +121,14 @@ func getCmdString(cmd []string) string {
 // Wait to start by polling the current time.
 func wait(start time.Time, v int) time.Time {
 	t := time.Now()
+	d := start.Sub(t)
+	if d.Seconds() > 1.1 {
+		// Sleep for a bit before doing detailed polling
+		// checks. Make sure to truncate so that we have
+		// sufficient margin for the precision.
+		s := time.Duration(int(d.Seconds()))
+		time.Sleep(s)
+	}
 	for {
 		if t.Equal(start) || t.After(start) {
 			break
@@ -163,28 +171,82 @@ func getTimeToStart(ts string, verbose int) time.Time {
 	}
 
 	// Figure out the start time.
-	duration, _ := time.ParseDuration("1s")
 	then := time.Now()
-	for {
-		if verbose > 1 {
-			H, M, S := then.Clock()
-			y, m, d := then.Date()
-			Info("checking : %02v-%02d%02v - %02v:%02v:%02v against %02v:%02v:%02v", y, m, d, H, M, S, hr, min, sec)
-		}
-		if then.Second() == sec {
-			if hr < 0 && min < 0 {
-				break
-			} else if hr >= 0 && min >= 0 {
-				if hr == then.Hour() && min == then.Minute() {
-					break
-				}
-			} else if min >= 0 {
-				if min == then.Minute() {
-					break
-				}
+	if verbose > 1 {
+		Info("check    : %v", then)
+	}
+
+	if sec >= 0 {
+		if sec < then.Second() {
+			// Advance to the next minute if the current time is
+			// later than the specified time.
+			// Example:
+			//   current time: 45
+			//   specified time: 20
+			//   advance 15 (60-45) seconds.
+			d := time.Duration(time.Second * time.Duration(60-then.Second()))
+			then = then.Add(d)
+			if verbose > 1 {
+				Info("added    : %v (%v)", d, sec)
+				Info("check    : %v", then)
 			}
 		}
-		then = then.Add(duration)
+
+		// Now set the correct second offset.
+		if sec > then.Second() {
+			// The specified time is later than the current time.
+			// This is easy, set the explicit time.
+			d := time.Duration(time.Second * time.Duration(sec-then.Second()))
+			then = then.Add(d)
+			if verbose > 1 {
+				Info("added    : %v (%v)", d, sec)
+				Info("check    : %v", then)
+			}
+		}
+	}
+
+	// Set the minute explicitly.
+	if min >= 0 {
+		if min < then.Minute() {
+			// Advance to the next hour.
+			d := time.Duration(time.Minute * time.Duration(60-then.Minute()))
+			then = then.Add(d)
+			if verbose > 1 {
+				Info("added    : %v (%v)", d, sec)
+				Info("check    : %v", then)
+			}
+		}
+
+		if min > then.Minute() {
+			d := time.Duration(time.Minute * time.Duration(min-then.Minute()))
+			then = then.Add(d)
+			if verbose > 1 {
+				Info("added    : %v (%v)", d, sec)
+				Info("check    : %v", then)
+			}
+		}
+	}
+
+	// Set the hour explicitly.
+	if hr >= 0 {
+		if hr < then.Hour() {
+			// Advance to the next day (24 hour clock).
+			d := time.Duration(time.Hour * time.Duration(24-then.Hour()))
+			then = then.Add(d)
+			if verbose > 1 {
+				Info("added    : %v (%v)", d, sec)
+				Info("check    : %v", then)
+			}
+		}
+
+		if hr > then.Hour() {
+			d := time.Duration(time.Hour * time.Duration(hr-then.Hour()))
+			then = then.Add(d)
+			if verbose > 1 {
+				Info("added    : %v (%v)", d, sec)
+				Info("check    : %v", then)
+			}
+		}
 	}
 
 	// Get rid of the nanoseconds.
