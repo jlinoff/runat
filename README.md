@@ -12,7 +12,7 @@ $ cd runat
 $ GOBIN=$(pwd)/bin go install runat.go
 $ bin/runat -h
 ```
-### Using it.
+### Using It
 This tool can be used for analyzing process race conditions because it allows you to start multiple
 processes at almost the same time (usually to within microseconds of one another) in a convenient
 way (without having to specify a specific time).
@@ -95,4 +95,4 @@ Thu Jul 21 19:47:52 PDT 2016
 /Users/jlinoff/work/runat
 ```
 
-Please send comments to improve this tool if you find it useful.
+Please send comments to improve this tool or the implementation.
