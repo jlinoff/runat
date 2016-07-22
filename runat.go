@@ -10,17 +10,17 @@
 package main
 
 import (
-  "fmt"
-  "os"
-  "os/exec"
-  "path"
-  "path/filepath"
-  "regexp"
-  "runtime"
-  "strconv"
-  "strings"
-  "syscall"
-  "time"
+	"fmt"
+	"os"
+	"os/exec"
+	"path"
+	"path/filepath"
+	"regexp"
+	"runtime"
+	"strconv"
+	"strings"
+	"syscall"
+	"time"
 )
 
 func main() {
@@ -30,45 +30,45 @@ func main() {
 		Info("command  : %v", cmd)
 	}
 
-  // Get the start time.
-  start := getTimeToStart(ts, v)
-  if v > 0 {
-    Info("start    : %v", start)
-  }
+	// Get the start time.
+	start := getTimeToStart(ts, v)
+	if v > 0 {
+		Info("start    : %v", start)
+	}
 
-  // Wait until it is time to start and
-  // then launch the process.
-  ltime := wait(start, v)
-  if v > 0 {
-    Info("launchat : %v", ltime)
-    Info("launch   : (%v) %v", len(cmd), getCmdString(cmd))
-  }
+	// Wait until it is time to start and
+	// then launch the process.
+	ltime := wait(start, v)
+	if v > 0 {
+		Info("launchat : %v", ltime)
+		Info("launch   : (%v) %v", len(cmd), getCmdString(cmd))
+	}
 
-  // Launch the process.
-  launch(cmd, v)
+	// Launch the process.
+	launch(cmd, v)
 }
 
 // Launch the command.
 func launch(cmd []string, v int) {
-  env := os.Environ()
-  binary, err := exec.LookPath(cmd[0])
-  if err != nil {
-    Err("%v: '%v'", err, cmd[0])
-  }
-  binary, err = filepath.Abs(binary)
-  if err != nil {
-    Err("%v: '%v'", err, binary)
-  }
-  if v > 0 {
-    Info("binary   : %v", binary)
-  }
-  if _, err = os.Stat(binary); os.IsNotExist(err) {
-    Err("program does not exist: '%v'", cmd[0])
-  }
-  err = syscall.Exec(binary, cmd, env)
-  if err != nil {
-    Err("%v: '%v'", err, binary)
-  }
+	env := os.Environ()
+	binary, err := exec.LookPath(cmd[0])
+	if err != nil {
+		Err("%v: '%v'", err, cmd[0])
+	}
+	binary, err = filepath.Abs(binary)
+	if err != nil {
+		Err("%v: '%v'", err, binary)
+	}
+	if v > 0 {
+		Info("binary   : %v", binary)
+	}
+	if _, err = os.Stat(binary); os.IsNotExist(err) {
+		Err("program does not exist: '%v'", cmd[0])
+	}
+	err = syscall.Exec(binary, cmd, env)
+	if err != nil {
+		Err("%v: '%v'", err, binary)
+	}
 }
 
 // Get the command string.
@@ -80,123 +80,123 @@ func launch(cmd []string, v int) {
 //    echo "it's great!"  --> echo "it's great!"
 //    echo '"quote"'      --> echo '"quote"'
 func getCmdString(cmd []string) string {
-  cs := ""
-  re1 := regexp.MustCompile(`[\"\' \t]`)
-  for i, arg := range cmd {
-    if i > 0 {
-      cs += " "
-    }
-    if re1.MatchString(arg) {
-      // Contains whitespace or quotes.
-      if strings.Contains(arg, `"`) == false {
-        // Easy!
-        cs += `"`
-        cs += arg
-        cs += `"`
-      } else if strings.Contains(arg, `'`) == false {
-        // Easy!
-        cs += `'`
-        cs += arg
-        cs += `'`
-      } else {
-        // Contains both. Assume a single quote but that may not always be
-        // correct. For this application it really doesn't matter.
-        p := ""
-        cs := `'`
-        for i:=0; i<len(arg); i++ {
-          c := string(arg[i])
-          if c == `'` && p != "\\" {
-            cs += "\\"
-          }
-          cs += c
-          p = c
-        }
-        cs += `'`
-      }
-    }
-  }
-  return cs
+	cs := ""
+	re1 := regexp.MustCompile(`[\"\' \t]`)
+	for i, arg := range cmd {
+		if i > 0 {
+			cs += " "
+		}
+		if re1.MatchString(arg) {
+			// Contains whitespace or quotes.
+			if strings.Contains(arg, `"`) == false {
+				// Easy!
+				cs += `"`
+				cs += arg
+				cs += `"`
+			} else if strings.Contains(arg, `'`) == false {
+				// Easy!
+				cs += `'`
+				cs += arg
+				cs += `'`
+			} else {
+				// Contains both. Assume a single quote but that may not always be
+				// correct. For this application it really doesn't matter.
+				p := ""
+				cs := `'`
+				for i := 0; i < len(arg); i++ {
+					c := string(arg[i])
+					if c == `'` && p != "\\" {
+						cs += "\\"
+					}
+					cs += c
+					p = c
+				}
+				cs += `'`
+			}
+		}
+	}
+	return cs
 }
 
 // Wait to start by polling the current time.
 func wait(start time.Time, v int) time.Time {
-  t := time.Now()
-  for {
-    if t.Equal(start) || t.After(start) {
-      break
-    }
-    t = time.Now()
-  }
-  return t
+	t := time.Now()
+	for {
+		if t.Equal(start) || t.After(start) {
+			break
+		}
+		t = time.Now()
+	}
+	return t
 }
 
 // Get the time to start.
 func getTimeToStart(ts string, verbose int) time.Time {
-  // First verify that the time specification has the proper format.
-  hr := -1
-  min := -1
-  sec := -1
-  re1 := regexp.MustCompile(`^(\d+):(\d+):(\d+)$`)
-  re2 := regexp.MustCompile(`^(\d+)$`)
-  if re1.MatchString(ts) {
-    group := re1.FindAllStringSubmatch(ts, -1)
-    hr, _ = strconv.Atoi(group[0][1])
-    min, _ = strconv.Atoi(group[0][2])
-    sec, _ = strconv.Atoi(group[0][3])
-    if hr < 0 || hr > 23 {
-      Err("time specification '%v' has invalid hour: %v, must be in the range [0...23]", ts, hr)
-    }
-    if min < 0 || min > 69 {
-      Err("time specification '%v' has invalid minute: %v, must be in the range [0...60]", ts, min)
-    }
-    if sec < 0 || sec > 69 {
-      Err("time specification '%v' has invalid second: %v, must be in the range [0...60]", ts, sec)
-    }
-  } else if re2.MatchString(ts) {
-    group := re2.FindAllStringSubmatch(ts, -1)
-    sec, _ = strconv.Atoi(group[0][1])
-    if sec > 59 {
-      Err("time specification %v seconds out of range [0..59]", sec)
-    }
-  } else {
-    Err("unrecognized time specification: '%v', see help (-h) for more information", ts)
-  }
+	// First verify that the time specification has the proper format.
+	hr := -1
+	min := -1
+	sec := -1
+	re1 := regexp.MustCompile(`^(\d+):(\d+):(\d+)$`)
+	re2 := regexp.MustCompile(`^(\d+)$`)
+	if re1.MatchString(ts) {
+		group := re1.FindAllStringSubmatch(ts, -1)
+		hr, _ = strconv.Atoi(group[0][1])
+		min, _ = strconv.Atoi(group[0][2])
+		sec, _ = strconv.Atoi(group[0][3])
+		if hr < 0 || hr > 23 {
+			Err("time specification '%v' has invalid hour: %v, must be in the range [0...23]", ts, hr)
+		}
+		if min < 0 || min > 69 {
+			Err("time specification '%v' has invalid minute: %v, must be in the range [0...60]", ts, min)
+		}
+		if sec < 0 || sec > 69 {
+			Err("time specification '%v' has invalid second: %v, must be in the range [0...60]", ts, sec)
+		}
+	} else if re2.MatchString(ts) {
+		group := re2.FindAllStringSubmatch(ts, -1)
+		sec, _ = strconv.Atoi(group[0][1])
+		if sec > 59 {
+			Err("time specification %v seconds out of range [0..59]", sec)
+		}
+	} else {
+		Err("unrecognized time specification: '%v', see help (-h) for more information", ts)
+	}
 
-  // Figure out the start time.
-  duration, _ := time.ParseDuration("1s")
-  then := time.Now()
-  for {
-    if verbose > 1 {
-      H, M, S := then.Clock()
-      y, m, d := then.Date()
-      Info("checking : %02v-%02d%02v - %02v:%02v:%02v against %02v:%02v:%02v", y, m, d, H, M, S, hr, min, sec)
-    }
-    if then.Second() == sec {
-      if hr < 0 && min < 0 {
-        break
-      } else if hr >=0 && min >= 0 {
-        if hr == then.Hour() && min == then.Minute() {
-          break
-        }
-      } else if min >= 0 {
-        if min == then.Minute() {
-          break
-        }
-      }
-    }
-    then = then.Add(duration)
-  }
+	// Figure out the start time.
+	duration, _ := time.ParseDuration("1s")
+	then := time.Now()
+	for {
+		if verbose > 1 {
+			H, M, S := then.Clock()
+			y, m, d := then.Date()
+			Info("checking : %02v-%02d%02v - %02v:%02v:%02v against %02v:%02v:%02v", y, m, d, H, M, S, hr, min, sec)
+		}
+		if then.Second() == sec {
+			if hr < 0 && min < 0 {
+				break
+			} else if hr >= 0 && min >= 0 {
+				if hr == then.Hour() && min == then.Minute() {
+					break
+				}
+			} else if min >= 0 {
+				if min == then.Minute() {
+					break
+				}
+			}
+		}
+		then = then.Add(duration)
+	}
 
-  // Get rid of the nanoseconds.
-  tf := time.Date(then.Year(),
-                  then.Month(),
-                  then.Day(),
-                  then.Hour(),
-                  then.Minute(),
-                  then.Second(),
-                  0,
-                  then.Location())
-  return tf
+	// Get rid of the nanoseconds.
+	tf := time.Date(then.Year(),
+		then.Month(),
+		then.Day(),
+		then.Hour(),
+		then.Minute(),
+		then.Second(),
+		0,
+		then.Location())
+	return tf
 }
 
 func getOptions() (string, []string, int) {
@@ -211,10 +211,10 @@ func getOptions() (string, []string, int) {
 			os.Exit(0)
 		case "-v", "--verbose":
 			verbose++
-    case "-vv":
-      verbose += 2
+		case "-vv":
+			verbose += 2
 		case "-V", "--version":
-      base := filepath.Base(os.Args[0])
+			base := filepath.Base(os.Args[0])
 			fmt.Printf("%v v0.1\n", base)
 			os.Exit(0)
 		default:
@@ -338,7 +338,7 @@ EXAMPLES
     $ # Example 5: run two commands at the 12 second mark
     $ %[1]v -v 12 /bin/bash -c "date && pwd"
 `
-  msg += "\n"
+	msg += "\n"
 	fmt.Printf(msg, base)
 }
 
