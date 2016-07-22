@@ -9,7 +9,7 @@ endef
 
 all: bin/runat
 
-test: help test-after-sec test-before-sec test-after-ts test-before-ts
+test: help version test-after-sec test-before-sec test-after-ts test-before-ts
 
 clean: ; rm -rf bin *~
 
@@ -22,21 +22,25 @@ help: bin/runat
 	$(call hdr,$@)
 	bin/runat -h
 
+.PHONY: version
+version: bin/runat
+	$(call hdr,$@)
+	bin/runat --version
+
 # Test run is after the current time mark.
 # Time specification is in seconds mark.
 .PHONY: test-after-sec
 test-after-sec: bin/runat
 	$(call hdr,$@)
-	@Sec=$$(date +'%S') ; \
-	(( Sec += 0 )) ; \
+	@ \
+	Sec=$$(echo $$(date +'%S') | sed -e 's/^0//'); \
 	if (( Sec > 57 )) ; then \
 		sleep 2 ; \
-		Sec=$$(date +'%S') ; \
+		Sec=$$(echo $$(date +'%S') | sed -e 's/^0//'); \
 	fi ; \
-	(( Sec += 0 )) ; \
 	echo "current mark is $$Sec" ; \
 	(( Sec += 2 )) ; \
-	echo "running at the $$Sec second mark" ; \
+	echo "running at the $$Sec second mark in 2 seconds" ; \
 	bin/runat -vv $$Sec /bin/bash -c "date && pwd"
 
 # Test run is before the current time mark (wait a bit).
@@ -44,16 +48,16 @@ test-after-sec: bin/runat
 .PHONY: test-before-sec
 test-before-sec: bin/runat
 	$(call hdr,$@)
-	@Sec=$$(date +'%S') ; \
-	(( Sec += 0 )) ; \
+	@ \
+	Sec=$$(echo $$(date +'%S') | sed -e 's/^0//'); \
 	if (( Sec < 1 )) ; then \
 		sleep 1 ; \
-		Sec=$$(date +'%S'); \
+		Sec=$$(echo $$(date +'%S') | sed -e 's/^0//'); \
 	fi ; \
-	(( Sec += 0 )) ; \
 	echo "current mark is $$Sec" ; \
+	(( Diff = 60 - Sec )) ; \
 	(( Sec = 0  )) ; \
-	echo "running at the $$Sec second mark" ; \
+	echo "running at the $$Sec second mark in $$Diff seconds" ; \
 	bin/runat -vv $$Sec /bin/bash -c "date && pwd"
 
 # Test run is after the current time mark.
@@ -62,19 +66,18 @@ test-before-sec: bin/runat
 .PHONY: test-after-ts
 test-after-ts: bin/runat
 	$(call hdr,$@)
-	@Sec=$$(date +'%S') ; \
-	(( Sec += 0 )) ; \
+	@ \
+	Sec=$$(echo $$(date +'%S') | sed -e 's/^0//'); \
 	if (( Sec > 57 )) ; then \
 		sleep 2 ; \
-		Sec=$$(date +'%S') ; \
+		Sec=$$(echo $$(date +'%S') | sed -e 's/^0//'); \
 	fi ; \
-	(( Sec += 0 )) ; \
 	echo "current mark is $$Sec" ; \
 	(( Sec += 2 )) ; \
-	Hr=$$(date +'%H') ; \
-	Min=$$(date +'%M') ; \
+	Min=$$(echo $$(date +'%M') | sed -e 's/^0//'); \
+	Hr=$$(echo $$(date +'%H') | sed -e 's/^0//'); \
 	Dts=$$(echo $$Hr $$Min $$Sec | awk '{printf("%02d:%02d:%02d",$$1,$$2,$$3)}') ; \
-	echo "running at the $$Dts time stamp" ; \
+	echo "running at the $$Dts time stamp in 2 seconds" ; \
 	bin/runat -vv $$Dts /bin/bash -c "date && pwd"
 
 # Test run is before the current time mark (wait a bit).
@@ -83,21 +86,18 @@ test-after-ts: bin/runat
 .PHONY: test-before-ts
 test-before-ts: bin/runat
 	$(call hdr,$@)
-	@Sec=$$(date +'%S') ; \
-	(( Sec += 0 )) ; \
+	@ \
+	Sec=$$(echo $$(date +'%S') | sed -e 's/^0//'); \
 	if (( Sec < 1 )) ; then \
 		sleep 1 ; \
-		Sec=$$(date +'%S'); \
+		Sec=$$(echo $$(date +'%S') | sed -e 's/^0//'); \
 	fi ; \
-	(( Sec += 0 )) ; \
 	echo "current second mark is $$Sec" ; \
+	(( Diff = 60 - Sec )) ; \
 	(( Sec = 0  )) ; \
-	Min=$$(date +'%M') ; \
-	Hr=$$(date +'%H') ; \
-	(( Min += 0 )) ; \
+	Min=$$(echo $$(date +'%M') | sed -e 's/^0//'); \
+	Hr=$$(echo $$(date +'%H') | sed -e 's/^0//'); \
 	(( Min++ )) ; \
-	(( Hr += 0 )) ; \
-	echo "current minute mark is $$Min" ; \
 	if (( Min > 59 )) ; then \
 		(( Min = 0 )) ; \
 		(( Hr++ )) ; \
@@ -106,5 +106,5 @@ test-before-ts: bin/runat
 		fi ; \
 	fi ; \
 	Dts=$$(echo $$Hr $$Min $$Sec | awk '{printf("%02d:%02d:%02d",$$1,$$2,$$3)}') ; \
-	echo "running at the $$Dts time stamp" ; \
+	echo "running at the $$Dts time stamp in $$Diff seconds" ; \
 	bin/runat -vv $$Dts /bin/bash -c "date && pwd"
