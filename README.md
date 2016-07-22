@@ -80,4 +80,19 @@ The command has 3 options. They must be specified before the time specification 
 | -v    | --verbose | Increase the level of verbosity. Can specify -vv as a short cut for -v -v. |
 | -V    | --version | Print the version number and exit. |
 
+### Example run with output in verbose mode
+This example shows a run in verbose mode.
+```bash
+$ ./bin/runat -v 52 /bin/bash -c "echo win1 && date && pwd" 
+2016-07-22 02:47:05.322 +0000 UTC  INFO    runat   26 - timestamp: 52
+2016-07-22 02:47:05.322 +0000 UTC  INFO    runat   27 - command  : [/bin/bash -c echo win1 && date && pwd]
+2016-07-22 02:47:05.323 +0000 UTC  INFO    runat   33 - start    : 2016-07-21 19:47:52 -0700 PDT
+2016-07-22 02:47:52 +0000 UTC      INFO    runat   40 - launchat : 2016-07-21 19:47:52.000000001 -0700 PDT
+2016-07-22 02:47:52 +0000 UTC      INFO    runat   41 - launch   : (3)   "echo win1 && date && pwd"
+2016-07-22 02:47:52 +0000 UTC      INFO    runat   60 - binary   : /bin/bash
+win1
+Thu Jul 21 19:47:52 PDT 2016
+/Users/jlinoff/work/runat
+```
+
 Please send comments to improve this tool if you find it useful.
