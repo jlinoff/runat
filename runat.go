@@ -10,17 +10,17 @@
 package main
 
 import (
-	"fmt"
-	"os"
+  "fmt"
+  "os"
   "os/exec"
-	"path"
-	"path/filepath"
+  "path"
+  "path/filepath"
   "regexp"
-	"runtime"
+  "runtime"
   "strconv"
   "strings"
   "syscall"
-	"time"
+  "time"
 )
 
 func main() {
