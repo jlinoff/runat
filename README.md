@@ -32,11 +32,11 @@ The time specification has two input formats.
 
 The _mark_ format is the most interesting because you don't have to think about the specific time.
 If you specify 30, it will run the command at the 30 second mark, if you specify 15 it will run at the 15 second mark.
-If _mark_ has already passed it will start it in the next minute. Some examples will make that clear.
+If the _mark_ has already passed it will start it in the next minute. Some examples will make that clear.
 
-Example 1, if the current time is 14:22:17 and you specify 30, it will start at 14:22:30.
+> Example 1, if the current time is 14:22:17 and you specify 30, it will start at 14:22:30.
 
-Example 2, if the current time is 14:22:17 and you specify 10, it will start at 14:**23**:30.
+> Example 2, if the current time is 14:22:17 and you specify 10, it will start at 14:**23**:30.
 
 The command is any command. Everything after the time specification is part of the command.
 
