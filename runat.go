@@ -23,11 +23,13 @@ import (
 	"time"
 )
 
+var version = "v0.2" // 2016-07-22
+
 func main() {
 	ts, cmd, v := getOptions()
 	if v > 0 {
 		Info("timestamp: %v", ts)
-		Info("command  : %v", cmd)
+		Info("command  : %v", getCmdString(cmd))
 	}
 
 	// Get the start time.
@@ -102,7 +104,7 @@ func getCmdString(cmd []string) string {
 				// Contains both. Assume a single quote but that may not always be
 				// correct. For this application it really doesn't matter.
 				p := ""
-				cs := `'`
+				cs += `'`
 				for i := 0; i < len(arg); i++ {
 					c := string(arg[i])
 					if c == `'` && p != "\\" {
@@ -113,6 +115,8 @@ func getCmdString(cmd []string) string {
 				}
 				cs += `'`
 			}
+		} else {
+			cs += arg
 		}
 	}
 	return cs
@@ -126,8 +130,14 @@ func wait(start time.Time, v int) time.Time {
 		// Sleep for a bit before doing detailed polling
 		// checks. Make sure to truncate so that we have
 		// sufficient margin for the precision.
-		s := time.Duration(int(d.Seconds()))
+		s := time.Duration(time.Second * time.Duration(int(d.Seconds())))
+		if v > 1 {
+			Info("sleep    : %v", s)
+		}
 		time.Sleep(s)
+	}
+	if v > 1 {
+		Info("polling")
 	}
 	for {
 		if t.Equal(start) || t.After(start) {
@@ -277,7 +287,7 @@ func getOptions() (string, []string, int) {
 			verbose += 2
 		case "-V", "--version":
 			base := filepath.Base(os.Args[0])
-			fmt.Printf("%v v0.1\n", base)
+			fmt.Printf("%v %v\n", base, version)
 			os.Exit(0)
 		default:
 			ts = os.Args[i]
