@@ -5,7 +5,7 @@ Start multiple processes in parallel at the same time for testing race condition
 Here are the steps to install it locally. Make sure that you have a recent version of go available.
 
 ```bash
-$ $ go version
+$ go version
 go version go1.6.2 darwin/amd64
 $ git clone https://github.com/jlinoff/runat.git
 $ cd runat
@@ -48,10 +48,10 @@ $ date +'%S'
 12
 
 $ # Window 1:
-$ runat 30 /bin/bash -c "echo win1 && date && pwd"
+$ ./bin/runat 30 /bin/bash -c "echo win1 && date && pwd"
 
 $ # Window 2:
-$ runat 30 /bin/bash -c "echo win2 && date && pwd"
+$ ./bin/runat 30 /bin/bash -c "echo win2 && date && pwd"
 ```
 
 Just after the 30 second mark this is what you will see.
