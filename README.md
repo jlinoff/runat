@@ -41,7 +41,7 @@ If the _mark_ has already passed it will start it in the next minute. Some examp
 The command is any command. Everything after the time specification is part of the command.
 
 ### An Example
-This example shows how to use the tool to start processes in two different windows.
+This example shows how to use the tool to start processes in two different windows at the 30 second mark.
 
 ```bash
 $ date +'%S'
@@ -51,7 +51,7 @@ $ # Window 1:
 $ runat 30 /bin/bash -c "echo win1 && date && pwd"
 
 $ # Window 2:
-$ 30 /bin/bash -c "echo win2 && date && pwd"
+$ runat 30 /bin/bash -c "echo win2 && date && pwd"
 ```
 
 Just after the 30 second mark this is what you will see.
