@@ -28,7 +28,7 @@ The time specification has two input formats.
 | Format | Description |
 | :---   | :---------- |
 | HH:MM:SS | Start the command at this specific time. |
-| _mark_ | Run command at the specific second mark from the current minute. If that time has passed, it will rollover to the mark in the next minute|
+| _mark_ | Run the command at the specific second mark from the current minute. If that time has passed, it will rollover to the mark in the next minute|
 
 The _mark_ format is the most interesting because you don't have to think about the specific time.
 If you specify 30, it will run the command at the 30 second mark, if you specify 15 it will run at the 15 second mark.
