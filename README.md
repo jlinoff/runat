@@ -77,7 +77,7 @@ The command has 3 options. They must be specified before the time specification 
 | Short | Long      | Description |
 | :---- | :-------- | :---------- |
 | -h    | --help    | Print the help message and exit. |
-| -v    | --verbose | Increase the level of verbosity. Can specify -vv as a short cut for -v -v. |
+| -v    | --verbose | Increase the level of verbosity. You can specify -vv as a short cut for -v -v. |
 | -V    | --version | Print the version number and exit. |
 
 ### Example run with output in verbose mode
