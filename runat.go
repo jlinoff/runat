@@ -445,11 +445,12 @@ func ErrWithLevel(level int, f string, a ...interface{}) {
 func Base(fp *os.File, p string, s string, level int, sf bool) {
 	pc, fname, lineno, _ := runtime.Caller(level)
 	fname = fname[0 : len(fname)-3]
-	t := time.Now().UTC().Truncate(time.Millisecond).String()
+	//t := time.Now().UTC().Truncate(time.Millisecond).String()
+	t := time.Now().UTC().Truncate(time.Millisecond).Format("2006-01-02 15:05:05.000 MST")
 	if sf { // show function name
 		fct := runtime.FuncForPC(pc).Name()
-		fmt.Fprintf(fp, "%-34s %-7s %s %s %d - %s\n", t, p, path.Base(fname), fct, lineno, s)
+		fmt.Fprintf(fp, "%-28s %-7s %s %s %d - %s\n", t, p, path.Base(fname), fct, lineno, s)
 	} else {
-		fmt.Fprintf(fp, "%-34s %-7s %s %4d - %s\n", t, p, path.Base(fname), lineno, s)
+		fmt.Fprintf(fp, "%-28s %-7s %s %4d - %s\n", t, p, path.Base(fname), lineno, s)
 	}
 }
